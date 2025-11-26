@@ -1,0 +1,1501 @@
+DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interro d'Anglais - Version Football</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e40af;
+            --secondary: #dc2626;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --pitch: #16a34a;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e40af, #1e3a8a);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,192C672,181,768,139,864,138.7C960,139,1056,181,1152,181.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .game-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+        
+        .creator {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 1rem;
+        }
+        
+        .football-field {
+            background-color: var(--pitch);
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 1rem;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #0d9488;
+        }
+        
+        .field-markings {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            pointer-events: none;
+        }
+        
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+        }
+        
+        .level-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .level-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+            margin: 0 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .level-dot.active {
+            background-color: var(--accent);
+            transform: scale(1.3);
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
+        .level-dot.completed {
+            background-color: var(--success);
+        }
+        
+        .question-container {
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 15px;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            color: var(--dark);
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .question-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            background-color: #dbeafe;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+        }
+        
+        .match-time {
+            display: flex;
+            align-items: center;
+            background-color: #1e293b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        
+        .half-indicator {
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+        
+        .time-display {
+            font-size: 1.3rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .added-time {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .question-text {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            color: var(--dark);
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .option {
+            padding: 1rem 1.5rem;
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        
+        .option.selected {
+            background-color: #dbeafe;
+            border-color: var(--primary);
+        }
+        
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .btn-custom {
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary), #1e3a8a);
+            color: white;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.4);
+        }
+        
+        .btn-danger-custom {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+            color: white;
+        }
+        
+        .results-container {
+            padding: 2rem;
+            text-align: center;
+            background-color: white;
+            border-radius: 15px;
+            margin: 1rem;
+            color: var(--dark);
+        }
+        
+        .score-display {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            background: linear-gradient(135deg, var(--primary), var(--danger));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .message-box {
+            background-color: #f8fafc;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .message-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .progress-container {
+            margin: 2rem 0;
+        }
+        
+        .progress {
+            height: 12px;
+            border-radius: 10px;
+            background-color: #e2e8f0;
+        }
+        
+        .progress-bar {
+            border-radius: 10px;
+        }
+        
+        .level-complete-animation {
+            animation: levelComplete 1s ease;
+        }
+        
+        @keyframes levelComplete {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .half-time-screen {
+            padding: 2rem;
+            text-align: center;
+            background-color: white;
+            border-radius: 15px;
+            margin: 1rem;
+            color: var(--dark);
+        }
+        
+        .half-time-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .rules-container, .ad-container {
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        
+        .rules-title, .ad-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .ad-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .ad-icon {
+            font-size: 3rem;
+            color: var(--accent);
+        }
+        
+        .ad-text {
+            flex: 1;
+        }
+        
+        .half-time-timer {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            color: var(--danger);
+        }
+        
+        .feature-highlight {
+            background-color: #f0f4ff;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--accent);
+            color: var(--dark);
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            min-width: 120px;
+            margin: 0.5rem;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+        
+        .welcome-screen {
+            padding: 2rem;
+            text-align: center;
+            color: var(--dark);
+        }
+        
+        .welcome-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--danger));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .welcome-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: #475569;
+        }
+        
+        .feature-list {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-icon {
+            color: var(--primary);
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+        
+        .start-btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--primary), #1e3a8a);
+            color: white;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.4);
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(30, 64, 175, 0.5);
+        }
+        
+        .final-results {
+            padding: 2rem;
+            text-align: center;
+            color: var(--dark);
+        }
+        
+        .final-score {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            background: linear-gradient(135deg, var(--primary), var(--danger));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .trophy {
+            font-size: 4rem;
+            color: var(--accent);
+            margin: 1rem 0;
+        }
+        
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .share-btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .whistle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            color: var(--accent);
+            animation: whistle 2s infinite;
+        }
+        
+        @keyframes whistle {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-15deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                border-radius: 0;
+                margin: 0;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .football-field {
+                margin: 0.5rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="game-container">
+            <!-- Écran d'accueil -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <div class="header mb-4">
+                    <div class="header-content">
+                        <h1 class="game-title">INTERRO D'ANGLAIS</h1>
+                        <p class="game-subtitle">Version Football - 5 niveaux passionnants</p>
+                        <div class="whistle">
+                            <i class="fas fa-whistle"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2 class="welcome-title">Bienvenue dans l'Interro d'Anglais Version Football !</h2>
+                <p class="welcome-text">
+                    Découvrez une expérience de quiz unique avec 5 niveaux progressifs et un système de temps inspiré du football.
+                    Chaque niveau dure 90 secondes avec deux mi-temps de 45 secondes et du temps additionnel !
+                </p>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-futbol"></i></div>
+                        <div>
+                            <div class="feature-title">7 Questions par Niveau</div>
+                            <div>7 questions rapides et efficaces pour tester votre anglais.</div>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-trophy"></i></div>
+                        <div>
+                            <div class="feature-title">7/7 pour Passer</div>
+                            <div>Seul un score parfait de 7/7 vous permet d'accéder au niveau suivant.</div>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <div class="feature-title">Mi-temps avec Pause</div>
+                            <div>Une pause de 15 secondes à la mi-temps avec règles du jeu et publicité.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="startBtn" class="start-btn">
+                    <i class="fas fa-play-circle me-2"></i> Coup d'envoi !
+                </button>
+                
+                <div class="creator mt-4">
+                    <p>Créé par <strong>Christian Mandemba</strong> - Un développeur qui ne se contente pas de créer des sites web, mais qui donne au monde des choses intéressantes et intelligentes qui n'ont jamais existé.</p>
+                </div>
+            </div>
+            
+            <!-- Écran de mi-temps -->
+            <div id="halfTimeScreen" class="half-time-screen hidden">
+                <div class="header mb-4">
+                    <div class="header-content">
+                        <h1 class="game-title">MI-TEMPS</h1>
+                        <p class="game-subtitle">Niveau <span id="halfTimeLevel">1</span> - Pause</p>
+                    </div>
+                </div>
+                
+                <div class="half-time-title">Pause Mi-temps</div>
+                
+                <div class="rules-container">
+                    <div class="rules-title">Règles du Jeu</div>
+                    <ul>
+                        <li>Chaque niveau contient 7 questions d'anglais</li>
+                        <li>Vous devez obtenir 7/7 pour passer au niveau suivant</li>
+                        <li>Chaque niveau dure 90 secondes avec deux mi-temps</li>
+                        <li>Temps additionnel: 5-10 secondes supplémentaires</li>
+                        <li>Utilisez le temps additionnel pour terminer vos réponses</li>
+                    </ul>
+                </div>
+                
+                <div class="ad-container">
+                    <div class="ad-title">Créé par Christian Mandemba</div>
+                    <div class="ad-content">
+                        <div class="ad-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="ad-text">
+                            <p>Développeur passionné qui crée des expériences uniques et innovantes. Ce jeu est le fruit d'une combinaison entre l'apprentissage des langues et la passion du football.</p>
+                            <p><strong>Innovation, Créativité, Excellence</strong></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="half-time-timer" id="halfTimeTimer">15</div>
+                <p>La 2ème mi-temps commence dans...</p>
+            </div>
+            
+            <!-- Écran de jeu -->
+            <div id="gameScreen" class="hidden">
+                <div class="header">
+                    <div class="header-content">
+                        <h1 class="game-title">INTERRO D'ANGLAIS</h1>
+                        <p class="game-subtitle">Niveau <span id="currentLevelDisplay">1</span> sur 5</p>
+                    </div>
+                </div>
+                
+                <div class="football-field">
+                    <div class="field-markings"></div>
+                    <div class="center-circle"></div>
+                    
+                    <div class="level-indicator" id="levelIndicator">
+                        <!-- Les points de niveau seront générés par JavaScript -->
+                    </div>
+                    
+                    <div class="question-container">
+                        <div class="question-header">
+                            <div class="question-number">Question <span id="questionNumber">1</span>/7</div>
+                            <div class="match-time">
+                                <span class="half-indicator" id="halfIndicator">1ère Mi-Temps</span>
+                                <span class="time-display" id="timeDisplay">45:00</span>
+                                <span class="added-time" id="addedTime">+0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="question-text" id="questionText">
+                            <!-- La question sera insérée ici -->
+                        </div>
+                        
+                        <div class="options-container" id="optionsContainer">
+                            <!-- Les options seront générées par JavaScript -->
+                        </div>
+                        
+                        <div class="navigation-buttons">
+                            <button id="prevBtn" class="btn btn-secondary btn-custom" disabled>
+                                <i class="fas fa-arrow-left me-2"></i> Précédent
+                            </button>
+                            <button id="nextBtn" class="btn btn-primary-custom btn-custom">
+                                Suivant <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Écran de résultats de niveau -->
+            <div id="levelResultsScreen" class="results-container hidden">
+                <div class="header mb-4">
+                    <div class="header-content">
+                        <h1 class="game-title">FIN DU MATCH !</h1>
+                        <p class="game-subtitle">Résultats du Niveau <span id="completedLevel">1</span></p>
+                    </div>
+                </div>
+                
+                <div class="score-display" id="levelScore">5/7</div>
+                
+                <div class="message-box">
+                    <div class="message-title" id="messageTitle">Presque parfait !</div>
+                    <p id="messageText">Vous avez bien joué mais il vous faut un score parfait de 7/7 pour passer au niveau suivant.</p>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-value" id="correctAnswers">5</div>
+                        <div class="stat-label">Buts marqués</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="incorrectAnswers">2</div>
+                        <div class="stat-label">Occasions manquées</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="timeSpent">01:30</div>
+                        <div class="stat-label">Temps de jeu</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <p class="mb-2">Progression globale</p>
+                    <div class="progress">
+                        <div id="globalProgress" class="progress-bar bg-success" role="progressbar" style="width: 20%"></div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button id="replayLevelBtn" class="btn btn-danger-custom btn-custom">
+                        <i class="fas fa-redo me-2"></i> Rejouer ce niveau
+                    </button>
+                    <button id="nextLevelBtn" class="btn btn-primary-custom btn-custom" style="display: none;">
+                        <i class="fas fa-arrow-right me-2"></i> Niveau Suivant
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Écran de résultats finaux -->
+            <div id="finalResultsScreen" class="final-results hidden">
+                <div class="header mb-4">
+                    <div class="header-content">
+                        <h1 class="game-title">CHAMPION !</h1>
+                        <p class="game-subtitle">Vous avez remporté l'Interro d'Anglais !</p>
+                    </div>
+                </div>
+                
+                <div class="trophy">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                
+                <div class="final-score" id="finalScore">35/35</div>
+                
+                <div class="message-box">
+                    <div class="message-title" id="finalMessageTitle">Champion de l'Interro d'Anglais !</div>
+                    <p id="finalMessageText">Performance parfaite ! Vous avez réussi tous les niveaux avec un score de 7/7. Félicitations pour cette maîtrise exceptionnelle de l'anglais !</p>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalCorrect">35</div>
+                        <div class="stat-label">Buts marqués</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalIncorrect">0</div>
+                        <div class="stat-label">Occasions manquées</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalTime">07:30</div>
+                        <div class="stat-label">Temps total</div>
+                    </div>
+                </div>
+                
+                <div class="share-buttons">
+                    <button id="playAgainBtn" class="btn btn-primary-custom share-btn">
+                        <i class="fas fa-redo-alt"></i> Rejouer
+                    </button>
+                    <button class="btn btn-success share-btn">
+                        <i class="fas fa-share-alt"></i> Partager
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Données du quiz - 5 niveaux avec 7 questions chacun
+        const quizData = {
+            levels: [
+                {
+                    name: "Débutant",
+                    questions: [
+                        {
+                            question: "Which word is a synonym for 'happy'?",
+                            options: ["Sad", "Joyful", "Angry", "Tired"],
+                            correct: 1
+                        },
+                        {
+                            question: "What is the past tense of 'go'?",
+                            options: ["Goed", "Went", "Gone", "Going"],
+                            correct: 1
+                        },
+                        {
+                            question: "Which sentence is correct?",
+                            options: ["She don't like apples.", "She doesn't like apples.", "She doesn't likes apples.", "She not like apples."],
+                            correct: 1
+                        },
+                        {
+                            question: "What is the opposite of 'hot'?",
+                            options: ["Warm", "Cold", "Cool", "Freezing"],
+                            correct: 1
+                        },
+                        {
+                            question: "Which word is a noun?",
+                            options: ["Run", "Beautiful", "Happiness", "Quickly"],
+                            correct: 2
+                        },
+                        {
+                            question: "Complete the sentence: I ___ to the store yesterday.",
+                            options: ["go", "went", "gone", "going"],
+                            correct: 1
+                        },
+                        {
+                            question: "What is the plural of 'child'?",
+                            options: ["Childs", "Children", "Childes", "Childen"],
+                            correct: 1
+                        }
+                    ]
+                },
+                {
+                    name: "Élémentaire",
+                    questions: [
+                        {
+                            question: "Which verb form is correct in this sentence: She has ___ her homework.",
+                            options: ["do", "did", "done", "doing"],
+                            correct: 2
+                        },
+                        {
+                            question: "What is the comparative form of 'good'?",
+                            options: ["Gooder", "Better", "More good", "Best"],
+                            correct: 1
+                        },
+                        {
+                            question: "Which sentence uses the present perfect tense correctly?",
+                            options: ["I have seen that movie yesterday.", "I saw that movie yesterday.", "I have seen that movie.", "I see that movie."],
+                            correct: 2
+                        },
+                        {
+                            question: "What does the phrasal verb 'look up to' mean?",
+                            options: ["To search for information", "To admire someone", "To physically look upward", "To visit someone"],
+                            correct: 1
+                        },
+                        {
+                            question: "Which word is an adverb?",
+                            options: ["Quick", "Quickly", "Quickness", "Quicken"],
+                            correct: 1
+                        },
+                        {
+                            question: "Complete the sentence: If I ___ you, I would study more.",
+                            options: ["am", "was", "were", "be"],
+                            correct: 2
+                        },
+                        {
+                            question: "What is the meaning of 'ubiquitous'?",
+                            options: ["Rare", "Everywhere", "Beautiful", "Strange"],
+                            correct: 1
+                        }
+                    ]
+                },
+                {
+                    name: "Intermédiaire",
+                    questions: [
+                        {
+                            question: "Which of these is a conditional sentence?",
+                            options: ["I will go to the store.", "If I had time, I would help you.", "She is reading a book.", "They have finished their work."],
+                            correct: 1
+                        },
+                        {
+                            question: "What is the meaning of 'ephemeral'?",
+                            options: ["Lasting for a very short time", "Eternal", "Beautiful", "Complex"],
+                            correct: 0
+                        },
+                        {
+                            question: "Which sentence uses the subjunctive mood?",
+                            options: ["I suggest that he be on time.", "He is always on time.", "He was on time yesterday.", "He will be on time."],
+                            correct: 0
+                        },
+                        {
+                            question: "What does 'to bite the bullet' mean?",
+                            options: ["To eat something hard", "To face a difficult situation bravely", "To complain about something", "To avoid a problem"],
+                            correct: 1
+                        },
+                        {
+                            question: "Which word is not a synonym for 'angry'?",
+                            options: ["Furious", "Irate", "Livid", "Jubilant"],
+                            correct: 3
+                        },
+                        {
+                            question: "Complete the sentence: By next year, I ___ English for five years.",
+                            options: ["will study", "will have been studying", "will be studying", "study"],
+                            correct: 1
+                        },
+                        {
+                            question: "What is the correct passive form of: 'They built this house in 1990.'",
+                            options: ["This house was built in 1990 by them.", "This house is built in 1990 by them.", "This house has been built in 1990 by them.", "This house had been built in 1990 by them."],
+                            correct: 0
+                        }
+                    ]
+                },
+                {
+                    name: "Avancé",
+                    questions: [
+                        {
+                            question: "What is the meaning of 'quixotic'?",
+                            options: ["Exceedingly idealistic and unrealistic", "Related to Don Quixote", "Practical and realistic", "Quick and efficient"],
+                            correct: 0
+                        },
+                        {
+                            question: "Which of these is an example of litotes?",
+                            options: ["I'm not unhappy with the results.", "I'm extremely happy with the results!", "The results are okay.", "The results could be better."],
+                            correct: 0
+                        },
+                        {
+                            question: "What does 'to have a chip on your shoulder' mean?",
+                            options: ["To be carrying something heavy", "To have a grievance or sense of inferiority", "To be very hungry", "To be ready for a fight"],
+                            correct: 1
+                        },
+                        {
+                            question: "Which sentence demonstrates the correct use of 'whom'?",
+                            options: ["Whom did you see at the party?", "Who did you see at the party?", "To who did you give the book?", "Whom is coming to dinner?"],
+                            correct: 0
+                        },
+                        {
+                            question: "What is the difference between 'affect' and 'effect'?",
+                            options: ["Affect is a verb, effect is a noun", "Affect is a noun, effect is a verb", "They are interchangeable", "Affect is positive, effect is negative"],
+                            correct: 0
+                        },
+                        {
+                            question: "Which of these is a malapropism?",
+                            options: ["He's a wolf in cheap clothing.", "He's a wolf in sheep's clothing.", "He's dressed like a wolf.", "He's clothing like a wolf."],
+                            correct: 0
+                        },
+                        {
+                            question: "What does 'sycophant' mean?",
+                            options: ["A person who acts obsequiously toward someone important", "A type of plant", "A musical instrument", "A philosophical concept"],
+                            correct: 0
+                        }
+                    ]
+                },
+                {
+                    name: "Expert",
+                    questions: [
+                        {
+                            question: "What is the difference between 'disinterested' and 'uninterested'?",
+                            options: ["Disinterested means impartial, uninterested means not interested", "Disinterested means not interested, uninterested means impartial", "They are synonyms", "Disinterested is British English, uninterested is American English"],
+                            correct: 0
+                        },
+                        {
+                            question: "Which of these is an example of anacoluthon?",
+                            options: ["I was on my way to - wait, where was I going?", "I was on my way to the store.", "Where was I going? I was on my way to the store.", "To the store I was going."],
+                            correct: 0
+                        },
+                        {
+                            question: "What does 'profligate' mean?",
+                            options: ["Recklessly extravagant or wasteful", "Highly productive", "Extremely frugal", "Moderately successful"],
+                            correct: 0
+                        },
+                        {
+                            question: "Which sentence demonstrates the subjunctive mood correctly?",
+                            options: ["I wish I were taller.", "I wish I was taller.", "I wish I am taller.", "I wish I will be taller."],
+                            correct: 0
+                        },
+                        {
+                            question: "What is the meaning of 'sesquipedalian'?",
+                            options: ["Characterized by long words; long-winded", "Related to feet", "A type of measurement", "A musical term"],
+                            correct: 0
+                        },
+                        {
+                            question: "Which of these is an example of chiasmus?",
+                            options: ["Ask not what your country can do for you; ask what you can do for your country.", "The early bird catches the worm.", "A penny saved is a penny earned.", "When the going gets tough, the tough get going."],
+                            correct: 0
+                        },
+                        {
+                            question: "What does 'ineffable' mean?",
+                            options: ["Too great or extreme to be expressed in words", "Easily expressed", "Complicated", "Simple"],
+                            correct: 0
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // État du jeu
+        let gameState = {
+            currentLevel: 0,
+            currentQuestion: 0,
+            score: 0,
+            selectedOption: null,
+            answers: [],
+            levelScores: [],
+            startTime: null,
+            levelStartTime: null,
+            timer: null,
+            halfTimeTimer: null,
+            matchTime: 90, // 90 secondes par niveau
+            currentHalf: 1, // 1ère ou 2ème mi-temps
+            addedTime: 0, // Temps additionnel
+            isAddedTime: false,
+            isHalfTime: false
+        };
+
+        // Éléments DOM
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const halfTimeScreen = document.getElementById('halfTimeScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const levelResultsScreen = document.getElementById('levelResultsScreen');
+        const finalResultsScreen = document.getElementById('finalResultsScreen');
+        const startBtn = document.getElementById('startBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextLevelBtn = document.getElementById('nextLevelBtn');
+        const replayLevelBtn = document.getElementById('replayLevelBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const questionNumber = document.getElementById('questionNumber');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const halfIndicator = document.getElementById('halfIndicator');
+        const addedTime = document.getElementById('addedTime');
+        const currentLevelDisplay = document.getElementById('currentLevelDisplay');
+        const levelIndicator = document.getElementById('levelIndicator');
+        const completedLevel = document.getElementById('completedLevel');
+        const levelScore = document.getElementById('levelScore');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        const correctAnswers = document.getElementById('correctAnswers');
+        const incorrectAnswers = document.getElementById('incorrectAnswers');
+        const timeSpent = document.getElementById('timeSpent');
+        const globalProgress = document.getElementById('globalProgress');
+        const finalScore = document.getElementById('finalScore');
+        const finalMessageTitle = document.getElementById('finalMessageTitle');
+        const finalMessageText = document.getElementById('finalMessageText');
+        const totalCorrect = document.getElementById('totalCorrect');
+        const totalIncorrect = document.getElementById('totalIncorrect');
+        const totalTime = document.getElementById('totalTime');
+        const halfTimeLevel = document.getElementById('halfTimeLevel');
+        const halfTimeTimer = document.getElementById('halfTimeTimer');
+
+        // Initialisation du jeu
+        function initGame() {
+            // Mélanger les questions pour chaque niveau
+            quizData.levels.forEach(level => {
+                shuffleArray(level.questions);
+            });
+            
+            // Créer les indicateurs de niveau
+            createLevelIndicators();
+            
+            // Afficher l'écran d'accueil
+            showScreen(welcomeScreen);
+        }
+
+        // Créer les indicateurs de niveau
+        function createLevelIndicators() {
+            levelIndicator.innerHTML = '';
+            for (let i = 0; i < quizData.levels.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'level-dot';
+                if (i === gameState.currentLevel) {
+                    dot.classList.add('active');
+                }
+                levelIndicator.appendChild(dot);
+            }
+        }
+
+        // Mélanger un tableau (algorithme de Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Afficher un écran spécifique
+        function showScreen(screen) {
+            welcomeScreen.classList.add('hidden');
+            halfTimeScreen.classList.add('hidden');
+            gameScreen.classList.add('hidden');
+            levelResultsScreen.classList.add('hidden');
+            finalResultsScreen.classList.add('hidden');
+            
+            screen.classList.remove('hidden');
+        }
+
+        // Démarrer le jeu
+        function startGame() {
+            gameState.currentLevel = 0;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.answers = [];
+            gameState.levelScores = [];
+            gameState.startTime = new Date();
+            
+            loadLevel();
+            showScreen(gameScreen);
+        }
+
+        // Charger un niveau
+        function loadLevel() {
+            gameState.levelStartTime = new Date();
+            gameState.currentQuestion = 0;
+            gameState.selectedOption = null;
+            gameState.matchTime = 90;
+            gameState.currentHalf = 1;
+            gameState.addedTime = 0;
+            gameState.isAddedTime = false;
+            gameState.isHalfTime = false;
+            
+            currentLevelDisplay.textContent = gameState.currentLevel + 1;
+            
+            // Mettre à jour les indicateurs de niveau
+            updateLevelIndicators();
+            
+            // Charger la première question
+            loadQuestion();
+            
+            // Démarrer le minuteur
+            startMatchTimer();
+        }
+
+        // Mettre à jour les indicateurs de niveau
+        function updateLevelIndicators() {
+            const dots = levelIndicator.querySelectorAll('.level-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index === gameState.currentLevel) {
+                    dot.classList.add('active');
+                } else if (index < gameState.currentLevel) {
+                    dot.classList.add('completed');
+                }
+            });
+        }
+
+        // Charger une question
+        function loadQuestion() {
+            const level = quizData.levels[gameState.currentLevel];
+            const question = level.questions[gameState.currentQuestion];
+            
+            questionNumber.textContent = gameState.currentQuestion + 1;
+            questionText.textContent = question.question;
+            
+            // Vider les options précédentes
+            optionsContainer.innerHTML = '';
+            
+            // Ajouter les nouvelles options
+            const optionLetters = ['A', 'B', 'C', 'D'];
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (index === gameState.selectedOption) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.innerHTML = `
+                    <span class="option-letter">${optionLetters[index]}</span>
+                    <span class="option-text">${option}</span>
+                `;
+                
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Mettre à jour les boutons de navigation
+            updateNavigationButtons();
+        }
+
+        // Sélectionner une option
+        function selectOption(index) {
+            gameState.selectedOption = index;
+            
+            // Mettre à jour l'apparence des options
+            const options = optionsContainer.querySelectorAll('.option');
+            options.forEach((option, i) => {
+                if (i === index) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+            
+            // Activer le bouton suivant
+            nextBtn.disabled = false;
+        }
+
+        // Mettre à jour les boutons de navigation
+        function updateNavigationButtons() {
+            prevBtn.disabled = gameState.currentQuestion === 0;
+            
+            // Si c'est la dernière question, changer le texte du bouton
+            if (gameState.currentQuestion === quizData.levels[gameState.currentLevel].questions.length - 1) {
+                nextBtn.innerHTML = 'Terminer <i class="fas fa-flag-checkered ms-2"></i>';
+            } else {
+                nextBtn.innerHTML = 'Suivant <i class="fas fa-arrow-right ms-2"></i>';
+            }
+            
+            // Désactiver le bouton suivant si aucune option n'est sélectionnée
+            nextBtn.disabled = gameState.selectedOption === null;
+        }
+
+        // Passer à la question suivante
+        function nextQuestion() {
+            // Enregistrer la réponse
+            gameState.answers.push({
+                level: gameState.currentLevel,
+                question: gameState.currentQuestion,
+                selected: gameState.selectedOption
+            });
+            
+            // Si c'est la dernière question, terminer le niveau
+            if (gameState.currentQuestion === quizData.levels[gameState.currentLevel].questions.length - 1) {
+                finishLevel();
+                return;
+            }
+            
+            // Passer à la question suivante
+            gameState.currentQuestion++;
+            gameState.selectedOption = null;
+            loadQuestion();
+        }
+
+        // Revenir à la question précédente
+        function previousQuestion() {
+            if (gameState.currentQuestion > 0) {
+                gameState.currentQuestion--;
+                
+                // Récupérer la réponse précédente
+                const previousAnswer = gameState.answers.find(answer => 
+                    answer.level === gameState.currentLevel && 
+                    answer.question === gameState.currentQuestion
+                );
+                
+                gameState.selectedOption = previousAnswer ? previousAnswer.selected : null;
+                loadQuestion();
+            }
+        }
+
+        // Démarrer le minuteur de match
+        function startMatchTimer() {
+            clearInterval(gameState.timer);
+            
+            gameState.timer = setInterval(() => {
+                gameState.matchTime--;
+                
+                // Vérifier si on arrive à la mi-temps
+                if (gameState.matchTime === 45 && !gameState.isHalfTime) {
+                    gameState.isHalfTime = true;
+                    showHalfTime();
+                    return;
+                }
+                
+                // Mettre à jour l'affichage du temps
+                updateTimeDisplay();
+                
+                // Vérifier si on passe en temps additionnel
+                if (gameState.matchTime <= 0 && !gameState.isAddedTime) {
+                    gameState.isAddedTime = true;
+                    gameState.addedTime = Math.floor(Math.random() * 6) + 5; // 5-10 secondes de temps additionnel
+                    gameState.matchTime = gameState.addedTime;
+                }
+                
+                // Vérifier si le temps est écoulé
+                if (gameState.matchTime <= 0 && gameState.isAddedTime) {
+                    clearInterval(gameState.timer);
+                    finishLevel();
+                }
+            }, 1000);
+        }
+
+        // Afficher l'écran de mi-temps
+        function showHalfTime() {
+            clearInterval(gameState.timer);
+            halfTimeLevel.textContent = gameState.currentLevel + 1;
+            
+            let halfTimeCountdown = 15;
+            halfTimeTimer.textContent = halfTimeCountdown;
+            
+            gameState.halfTimeTimer = setInterval(() => {
+                halfTimeCountdown--;
+                halfTimeTimer.textContent = halfTimeCountdown;
+                
+                if (halfTimeCountdown <= 0) {
+                    clearInterval(gameState.halfTimeTimer);
+                    // Reprendre le match
+                    gameState.isHalfTime = false;
+                    startMatchTimer();
+                    showScreen(gameScreen);
+                }
+            }, 1000);
+            
+            showScreen(halfTimeScreen);
+        }
+
+        // Mettre à jour l'affichage du temps
+        function updateTimeDisplay() {
+            // Déterminer la mi-temps
+            if (gameState.matchTime > 45) {
+                gameState.currentHalf = 1;
+                halfIndicator.textContent = "1ère Mi-Temps";
+            } else if (gameState.matchTime > 0 || gameState.isAddedTime) {
+                gameState.currentHalf = 2;
+                halfIndicator.textContent = "2ème Mi-Temps";
+            }
+            
+            // Afficher le temps
+            if (gameState.isAddedTime) {
+                timeDisplay.textContent = `+${gameState.matchTime}`;
+                addedTime.textContent = "";
+            } else {
+                const minutes = Math.floor(gameState.matchTime / 60);
+                const seconds = gameState.matchTime % 60;
+                timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                addedTime.textContent = gameState.addedTime > 0 ? `+${gameState.addedTime}` : "";
+            }
+        }
+
+        // Terminer le niveau
+        function finishLevel() {
+            clearInterval(gameState.timer);
+            
+            // Calculer le score du niveau
+            const levelAnswers = gameState.answers.filter(answer => answer.level === gameState.currentLevel);
+            const correctCount = levelAnswers.filter(answer => {
+                const question = quizData.levels[gameState.currentLevel].questions[answer.question];
+                return answer.selected === question.correct;
+            }).length;
+            
+            const levelScoreValue = correctCount;
+            
+            gameState.levelScores.push(levelScoreValue);
+            gameState.score += levelScoreValue;
+            
+            // Afficher les résultats du niveau
+            showLevelResults(correctCount);
+        }
+
+        // Afficher les résultats du niveau
+        function showLevelResults(correctCount) {
+            completedLevel.textContent = gameState.currentLevel + 1;
+            levelScore.textContent = `${correctCount}/7`;
+            correctAnswers.textContent = correctCount;
+            incorrectAnswers.textContent = 7 - correctCount;
+            
+            // Calculer le temps passé
+            const timeDiff = new Date() - gameState.levelStartTime;
+            const minutes = Math.floor(timeDiff / 60000);
+            const seconds = Math.floor((timeDiff % 60000) / 1000);
+            timeSpent.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Mettre à jour la progression globale
+            const progress = ((gameState.currentLevel + 1) / quizData.levels.length) * 100;
+            globalProgress.style.width = `${progress}%`;
+            
+            // Vérifier si le joueur peut passer au niveau suivant (7/7 requis)
+            const canPassLevel = correctCount === 7;
+            
+            // Afficher ou masquer le bouton niveau suivant
+            if (canPassLevel) {
+                nextLevelBtn.style.display = 'block';
+            } else {
+                nextLevelBtn.style.display = 'none';
+            }
+            
+            // Déterminer le message en fonction du score
+            let title, message;
+            if (correctCount === 7) {
+                title = "Score Parfait !";
+                message = "Incroyable ! 7/7 ! Vous passez au niveau suivant. Une performance digne des plus grands champions !";
+            } else if (correctCount >= 5) {
+                title = "Belle performance !";
+                message = "Vous avez bien joué mais il vous faut un score parfait de 7/7 pour passer au niveau suivant. Presque là !";
+            } else if (correctCount >= 3) {
+                title = "Match serré !";
+                message = "Vous avez fait de votre mieux mais il faut 7/7 pour passer. Retentez votre chance !";
+            } else {
+                title = "Entraînement nécessaire";
+                message = "Ce niveau vous a résisté. Il vous faut 7/7 pour passer. Retroussez vos manches et rejouez !";
+            }
+            
+            messageTitle.textContent = title;
+            messageText.textContent = message;
+            
+            // Ajouter une animation
+            levelResultsScreen.classList.add('level-complete-animation');
+            setTimeout(() => {
+                levelResultsScreen.classList.remove('level-complete-animation');
+            }, 1000);
+            
+            showScreen(levelResultsScreen);
+        }
+
+        // Passer au niveau suivant
+        function nextLevel() {
+            gameState.currentLevel++;
+            
+            // Si c'est le dernier niveau, afficher les résultats finaux
+            if (gameState.currentLevel >= quizData.levels.length) {
+                showFinalResults();
+            } else {
+                loadLevel();
+                showScreen(gameScreen);
+            }
+        }
+
+        // Rejouer le niveau actuel
+        function replayLevel() {
+            // Réinitialiser les réponses pour ce niveau
+            gameState.answers = gameState.answers.filter(answer => answer.level !== gameState.currentLevel);
+            
+            // Recharger le niveau
+            loadLevel();
+            showScreen(gameScreen);
+        }
+
+        // Afficher les résultats finaux
+        function showFinalResults() {
+            const totalQuestions = quizData.levels.length * 7;
+            finalScore.textContent = `${gameState.score}/${totalQuestions}`;
+            totalCorrect.textContent = gameState.score;
+            totalIncorrect.textContent = totalQuestions - gameState.score;
+            
+            // Calculer le temps total
+            const timeDiff = new Date() - gameState.startTime;
+            const minutes = Math.floor(timeDiff / 60000);
+            const seconds = Math.floor((timeDiff % 60000) / 1000);
+            totalTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Déterminer le message final en fonction du score
+            let title, message;
+            const percentage = (gameState.score / totalQuestions) * 100;
+            
+            if (percentage === 100) {
+                title = "Champion de l'Interro d'Anglais !";
+                message = "Performance parfaite ! Vous avez réussi tous les niveaux avec un score de 7/7. Félicitations pour cette maîtrise exceptionnelle de l'anglais !";
+            } else if (percentage >= 80) {
+                title = "Excellent joueur !";
+                message = "Très belle performance ! Vous maîtrisez l'anglais à un niveau impressionnant. Félicitations !";
+            } else if (percentage >= 60) {
+                title = "Bon niveau !";
+                message = "Vous avez démontré une bonne maîtrise de l'anglais. Continuez à pratiquer pour atteindre l'excellence !";
+            } else {
+                title = "Continuez à vous entraîner !";
+                message = "L'apprentissage d'une langue est un marathon. Continuez à pratiquer et vous progresserez à coup sûr !";
+            }
+            
+            finalMessageTitle.textContent = title;
+            finalMessageText.textContent = message;
+            
+            showScreen(finalResultsScreen);
+        }
+
+        // Rejouer depuis le début
+        function playAgain() {
+            startGame();
+        }
+
+        // Événements
+        startBtn.addEventListener('click', startGame);
+        nextBtn.addEventListener('click', nextQuestion);
+        prevBtn.addEventListener('click', previousQuestion);
+        nextLevelBtn.addEventListener('click', nextLevel);
+        replayLevelBtn.addEventListener('click', replayLevel);
+        playAgainBtn.addEventListener('click', playAgain);
+
+        // Initialiser le jeu au chargement de la page
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
