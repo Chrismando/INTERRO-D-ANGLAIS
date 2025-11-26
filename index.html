@@ -299,6 +299,64 @@
             font-size: 0.9rem;
             opacity: 0.8;
         }
+        
+        .share-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .share-content {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-red));
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .share-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .btn-share {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-facebook {
+            background-color: #1877F2;
+            color: white;
+        }
+        
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+        }
+        
+        .btn-copy {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-close {
+            background-color: var(--primary-red);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -325,8 +383,8 @@
                 </div>
                 
                 <div class="social-buttons">
-                    <button class="btn-social">Partager mon score</button>
-                    <button class="btn-social">Féliciter le développeur</button>
+                    <button id="share-score-btn" class="btn-social">Partager mon score</button>
+                    <button id="congratulate-dev" class="btn-social">Féliciter le développeur</button>
                 </div>
             </div>
             
@@ -374,8 +432,8 @@
                 <button id="retry-level" class="btn btn-warning btn-lg px-5">Réessayer</button>
                 
                 <div class="social-buttons mt-4">
-                    <button class="btn-social">Partager mon score</button>
-                    <button class="btn-social">Féliciter le développeur</button>
+                    <button id="share-score-level" class="btn-social">Partager mon score</button>
+                    <button id="congratulate-dev-level" class="btn-social">Féliciter le développeur</button>
                 </div>
             </div>
             
@@ -389,8 +447,8 @@
                 <button id="play-again" class="btn btn-primary btn-lg px-5">Rejouer</button>
                 
                 <div class="social-buttons mt-4">
-                    <button class="btn-social">Partager mon score</button>
-                    <button class="btn-social">Féliciter le développeur</button>
+                    <button id="share-score-final" class="btn-social">Partager mon score</button>
+                    <button id="congratulate-dev-final" class="btn-social">Féliciter le développeur</button>
                 </div>
             </div>
         </div>
@@ -421,6 +479,20 @@
             <div class="ad-timer">
                 Retour dans <span id="ad-countdown">15</span> secondes
             </div>
+        </div>
+    </div>
+
+    <!-- Modal de partage -->
+    <div id="share-modal" class="share-modal d-none">
+        <div class="share-content">
+            <h3>Partager mon score</h3>
+            <p id="share-message" class="mt-3">Je viens d'atteindre le niveau X avec un score de Y/10 au Quiz d'Anglais Version Football !</p>
+            <div class="share-options">
+                <button id="share-facebook" class="btn-share btn-facebook">Facebook</button>
+                <button id="share-whatsapp" class="btn-share btn-whatsapp">WhatsApp</button>
+                <button id="copy-link" class="btn-share btn-copy">Copier</button>
+            </div>
+            <button id="close-share" class="btn-share btn-close mt-3">Fermer</button>
         </div>
     </div>
 
@@ -718,12 +790,27 @@
         const gameCompleteScreen = document.getElementById('game-complete-screen');
         const levelIntro = document.getElementById('level-intro');
         const halftimeAd = document.getElementById('halftime-ad');
+        const shareModal = document.getElementById('share-modal');
 
         const startGameBtn = document.getElementById('start-game');
         const startLevelBtn = document.getElementById('start-level');
         const nextLevelBtn = document.getElementById('next-level');
         const retryLevelBtn = document.getElementById('retry-level');
         const playAgainBtn = document.getElementById('play-again');
+
+        // Boutons de partage
+        const shareScoreBtn = document.getElementById('share-score-btn');
+        const shareScoreLevel = document.getElementById('share-score-level');
+        const shareScoreFinal = document.getElementById('share-score-final');
+        const congratulateDev = document.getElementById('congratulate-dev');
+        const congratulateDevLevel = document.getElementById('congratulate-dev-level');
+        const congratulateDevFinal = document.getElementById('congratulate-dev-final');
+
+        // Boutons de partage modal
+        const shareFacebook = document.getElementById('share-facebook');
+        const shareWhatsapp = document.getElementById('share-whatsapp');
+        const copyLink = document.getElementById('copy-link');
+        const closeShare = document.getElementById('close-share');
 
         const currentScoreEl = document.getElementById('current-score');
         const currentLevelEl = document.getElementById('current-level');
@@ -745,6 +832,8 @@
         const adTitleEl = document.getElementById('ad-title');
         const adDescriptionEl = document.getElementById('ad-description');
         const adCountdownEl = document.getElementById('ad-countdown');
+
+        const shareMessageEl = document.getElementById('share-message');
 
         // Variables de jeu
         let timerInterval;
@@ -777,6 +866,50 @@
                     circle.classList.add('completed');
                 }
             });
+        }
+
+        // Fonctions de partage
+        function showShareModal() {
+            const message = `Je viens d'atteindre le niveau ${gameData.currentLevel} avec un score de ${gameData.currentScore}/10 au Quiz d'Anglais Version Football ! 🎯⚽️\n\nTestez vos connaissances en anglais avec ce jeu amusant !`;
+            shareMessageEl.textContent = message;
+            shareModal.classList.remove('d-none');
+        }
+
+        function shareOnFacebook() {
+            const message = `Je viens d'atteindre le niveau ${gameData.currentLevel} avec un score de ${gameData.currentScore}/10 au Quiz d'Anglais Version Football ! 🎯⚽️\n\nTestez vos connaissances en anglais avec ce jeu amusant !`;
+            const url = encodeURIComponent(window.location.href);
+            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodeURIComponent(message)}`;
+            window.open(facebookUrl, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnWhatsApp() {
+            const message = `Je viens d'atteindre le niveau ${gameData.currentLevel} avec un score de ${gameData.currentScore}/10 au Quiz d'Anglais Version Football ! 🎯⚽️\n\nTestez vos connaissances en anglais avec ce jeu amusant !\n\n${window.location.href}`;
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function copyToClipboard() {
+            const message = `Je viens d'atteindre le niveau ${gameData.currentLevel} avec un score de ${gameData.currentScore}/10 au Quiz d'Anglais Version Football ! 🎯⚽️\n\nTestez vos connaissances en anglais avec ce jeu amusant !\n\n${window.location.href}`;
+            
+            navigator.clipboard.writeText(message).then(() => {
+                alert('Message copié dans le presse-papier !');
+            }).catch(err => {
+                console.error('Erreur lors de la copie: ', err);
+                // Fallback pour les navigateurs plus anciens
+                const textArea = document.createElement('textarea');
+                textArea.value = message;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Message copié dans le presse-papier !');
+            });
+        }
+
+        function congratulateDeveloper() {
+            const message = "Félicitations pour ce jeu incroyable ! Le Quiz d'Anglais Version Football est vraiment génial ! 👏⚽️";
+            const whatsappUrl = `https://wa.me/243985245786?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
         }
 
         // Affichage des écrans
@@ -858,7 +991,24 @@
             gameCompleteScreen.classList.add('d-none');
             levelIntro.classList.add('d-none');
             halftimeAd.classList.add('d-none');
+            shareModal.classList.add('d-none');
         }
+
+        // Événements de partage
+        shareScoreBtn.addEventListener('click', showShareModal);
+        shareScoreLevel.addEventListener('click', showShareModal);
+        shareScoreFinal.addEventListener('click', showShareModal);
+        
+        congratulateDev.addEventListener('click', congratulateDeveloper);
+        congratulateDevLevel.addEventListener('click', congratulateDeveloper);
+        congratulateDevFinal.addEventListener('click', congratulateDeveloper);
+        
+        shareFacebook.addEventListener('click', shareOnFacebook);
+        shareWhatsapp.addEventListener('click', shareOnWhatsApp);
+        copyLink.addEventListener('click', copyToClipboard);
+        closeShare.addEventListener('click', () => {
+            shareModal.classList.add('d-none');
+        });
 
         // Démarrage du jeu
         startGameBtn.addEventListener('click', () => {
